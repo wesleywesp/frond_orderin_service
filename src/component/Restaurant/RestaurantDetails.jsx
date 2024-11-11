@@ -2,6 +2,7 @@ import { Divider, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Typogr
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import TodayIcon from '@mui/icons-material/Today';
 import React, { useState } from "react";
+import MenuCard from "./MenuCard"
 
 const categories = ["pizza", "burger", "kebab", "sushi"];
 const foodTypes = [
@@ -23,6 +24,8 @@ const RestaurantDetails = () => {
             setCategoryFilter(value);
         }
     };
+
+    const menu=[1,1,1,1,1]
 
     return (
         <div className="px-5 lg:px-20">
@@ -102,7 +105,7 @@ const RestaurantDetails = () => {
                     </div>
                 </div>
                 <div className="space-y-5 lg:w-[80%] lg:pl-10">
-                    <p>Menu</p>
+                                {menu.map((item)=><MenuCard/>)}
                 </div>
             </section>
         </div>
