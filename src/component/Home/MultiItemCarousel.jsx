@@ -2,7 +2,7 @@ import React from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import { topMeel } from "./topMeel";
+import { topMeal } from "./topMeal";
 import CarouselItem from "./CarouselItem";
 
 const MultiItemCarousel = () => {
@@ -20,7 +20,7 @@ const MultiItemCarousel = () => {
     return (
         <div>
             <Slider {...settings}>
-                {topMeel.map((item, index) => (
+                {topMeal.map((item, index) => (
                     <CarouselItem key={index} image={item.image} title={item.title} />
                 ))}
             </Slider>

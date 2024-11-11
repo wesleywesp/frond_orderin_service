@@ -6,13 +6,16 @@ import { dark } from '@mui/material/styles/createPalette';
 import { darkTheme } from './component/Theme/DarkTheme';
 import { CssBaseline } from '@mui/material';
 import Home from './component/Home/Home';
+import RestaurantDetails from './component/Restaurant/RestaurantDetails';
+
 
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
       <Navbar/>
-      <Home/>
+      {/*<Home/>*/}
+      <RestaurantDetails/>
     </ThemeProvider>
   );
 }

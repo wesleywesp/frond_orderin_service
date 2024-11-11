@@ -1,5 +1,5 @@
 // topMeel.js
-export const topMeel = [
+export const topMeal = [
     { 
         image:"https://images.pexels.com/photos/13814644/pexels-photo-13814644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
         title:"Pizza"
