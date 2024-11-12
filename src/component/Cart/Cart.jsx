@@ -9,7 +9,7 @@ import { Formik, Field, ErrorMessage, Form } from 'formik';
 
 const items = [1, 1, 1]
 
-const style = {
+export const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
