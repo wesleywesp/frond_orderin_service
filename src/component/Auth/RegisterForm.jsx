@@ -2,6 +2,8 @@ import React from "react";
 import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { ErrorMessage, Field, Formik, Form } from "formik";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../../State/Authentication/Action";
 
 const initialValues = {
   fullName: "",
@@ -11,18 +13,20 @@ const initialValues = {
 };
 
 const RegisterForm = () => {
+  const dispatch = useDispatch();
+  const navigator = useNavigate();
 
-  const handleOnSubmit = (values) => {
-    console.log(values);
+  const handleRegister = (values) => {
+      dispatch(registerUser({ userData: values, navigator })); // Passe o navigator diretamente
   };
-  const Navigator = useNavigate()
+ 
   return (
     <div className="flex flex-col items-center justify-center ">
       <Typography variant="h5" className="text-center mb-4">
         Login
       </Typography>
 
-      <Formik onSubmit={handleOnSubmit} initialValues={initialValues}>
+      <Formik onSubmit={handleRegister} initialValues={initialValues}>
         {() => (
           <Form className="w-full max-w-md space-y-4">
             <Field

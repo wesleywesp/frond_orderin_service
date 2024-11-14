@@ -9,6 +9,8 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import EditIcon from '@mui/icons-material/Edit'; // Ícone para a nova opção
 import { Divider, Drawer, useMediaQuery } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../State/Authentication/Action";
 
 const menu = [
     { title: "Orders", icon: <ShoppingBagIcon /> },
@@ -24,9 +26,16 @@ const menu = [
 const ProfileNavigation = ({ open, handleClose }) => {
     const isSmallScreen = useMediaQuery("(max-width:900px)");
     const navigate=useNavigate();
+    const dispatch = useDispatch();
     
-    const handleNavigate=(item)=>{
-        navigate(`/my-profile/${item.title.toLowerCase()}`)
+ const handleNavigate=(item)=>{
+        if(item.title==="Logout"){
+            dispatch(logout());
+             navigate("/");
+        }else{
+            navigate(`/my-profile/${item.title.toLowerCase()}`)
+        }
+        
      }
 
     return (

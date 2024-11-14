@@ -6,10 +6,10 @@ import RestaurantDetails from "../component/Restaurant/RestaurantDetails";
 import Profile from "../component/Profile/Profile";
 import Cart from "../component/Cart/Cart";
 
-
 export const CustomerRouter=()=>{
     return(
         <div>
+            <Navbar />
 
             <Routes>
                 <Route path='/'element= {<Home/>}/>

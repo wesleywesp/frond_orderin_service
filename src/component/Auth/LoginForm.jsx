@@ -2,6 +2,8 @@ import React from "react";
 import { Button, TextField, Typography } from "@mui/material";
 import { ErrorMessage, Field, Formik, Form } from "formik";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../../State/Authentication/Action";
+import { useDispatch } from "react-redux";
 
 const initialValues = {
   email: "",
@@ -9,10 +11,14 @@ const initialValues = {
 };
 
 const LoginForm = () => {
+  const navigator = useNavigate()
+  const dispatch = useDispatch()
   const handleOnSubmit = (values) => {
     console.log(values);
+
+    dispatch(loginUser({userData:values, navigator}))
   };
-  const Navigator = useNavigate()
+ 
 
   return (
     <div className="flex flex-col items-center justify-center ">
@@ -52,7 +58,7 @@ const LoginForm = () => {
       </Formik>
       <Typography variant="body2" align="center" sx={{mt:3}}>
         Don't have an account?
-        <Button size="small" onClick={()=>Navigator("/account/register")}>register</Button>
+        <Button size="small" onClick={()=>navigator("/account/register")}>register</Button>
       </Typography>
     </div>
   );

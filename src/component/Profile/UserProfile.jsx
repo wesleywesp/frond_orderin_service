@@ -1,11 +1,18 @@
-import React from "react";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
+import { logout } from "../../State/Authentication/Action";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom"; // Importando useNavigate
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Button } from "@mui/material";
 
 const UserProfile = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate(); // Usando o hook useNavigate
+
     const handleLogout = () => {
-        // Lógica de logout aqui
-    }
+        dispatch(logout());
+        navigate("/"); // Usando navigate para redirecionar após logout
+    };
 
     return (
         <div className="min-h-[80vh] flex flex-col justify-center items-center text-center">
@@ -22,3 +29,4 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
+

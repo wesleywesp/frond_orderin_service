@@ -7,13 +7,25 @@ import { blue } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
 
 import './Navbar.css';
+import { useSelector } from 'react-redux';
 
 export const Navbar = () => {
+    const{auth}=useSelector(store=>store);
     const navigator=useNavigate();
+
+
+    const handleAvatarClick=()=>{
+        if(auth.user?.role==="ROLE_CUSTOMER"){
+            navigator("/my-profile")
+        }else{
+            navigator("admin/restaurant")
+        }
+    }
+
     return (
         <div className="px-5 sticky top-0 z-50 py-[0.8rem] bg-[#90caf9] lg:px-20 flex justify-between">
             <div className="lg:mr-10 cursor-pointer flex items-center space-x-4">
-                <div className="logo font-semibold text-gray-300 text-2xl">Logo</div>
+                <li onClick={()=>navigator("/")} className="logo font-semibold text-gray-300 text-2xl">Logo</li>
             </div>
             <div className="flex items-center space-x-2 lg:space-x-10">
                 <div>                <IconButton>
@@ -21,10 +33,13 @@ export const Navbar = () => {
                 </IconButton>
                 </div>
                 <div> 
-                    {false?<Avatar sx={{ bgcolor: "white", color: blue[300] }}>C</Avatar>:
-                    <IconButton>
-                        <PersonIcon onClick={()=>navigator("/account/login")}/>
-                    </IconButton>}
+                    {auth.user?(<Avatar onClick={handleAvatarClick} sx={{ bgcolor: "white", color: blue[300], cursor:'pointer' }}>
+                        {auth.user?.fullname[0].toUpperCase()}</Avatar>
+                        ):(
+                    <IconButton onClick={()=>navigator("/account/login")}>
+                        <PersonIcon/>
+                    </IconButton>
+                )}
                 </div>
 
                <div>                <IconButton>
