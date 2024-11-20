@@ -1,31 +1,70 @@
 import { Divider, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Typography } from "@mui/material";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import TodayIcon from '@mui/icons-material/Today';
-import React, { useState } from "react";
-import MenuCard from "./MenuCard"
+import React, { useEffect, useState } from "react";
+import MenuCard from "./MenuCard";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { getRestaurantById, getRestaurantsCategory } from "../../State/Restaurant/Action";
+import { getMenuByRestaurantId } from "../../State/Menu/Action";
 
-const categories = ["pizza", "burger", "kebab", "sushi"];
 const foodTypes = [
     { label: "All", value: "all" },
     { label: "vegetarian only", value: "vegetarian" },
     { label: "non-vegetarian", value: "non_vegetarian" },
     { label: "seasonal", value: "seasonal" }
 ];
-
 const RestaurantDetails = () => {
-    const [foodType, setFoodType] = useState("all");
-    const [categoryFilter, setCategoryFilter] = useState('');
+    const navigate = useNavigate();
+    const jwt = localStorage.getItem("jwt");
 
-    const handleFilter = (e) => {
-        const { name, value } = e.target;
-        if (name === "food_type") {
-            setFoodType(value);
-        } else if (name === "food_category") {
-            setCategoryFilter(value);
-        }
+    const dispatch = useDispatch();
+    const { auth, restaurant, menu } = useSelector(store => store);
+
+    const [foodType, setFoodType] = useState("all");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    ; // Usar uma variável de estado única para categoria
+
+    const { id } = useParams();
+    const restaurantId = id;
+
+    // Carregar o menu com base nos filtros
+    useEffect(() => {
+        dispatch(getMenuByRestaurantId({
+            jwt,
+            restaurantId,
+            vegetarian: foodType === "vegetarian",
+            nonveg: foodType === "non_vegetarian",
+            seasonal: foodType === "seasonal",
+            foodCategory: selectedCategory,
+        }));
+    }, [selectedCategory, foodType, jwt, restaurantId, dispatch]);  // Adicionando foodType para garantir que ambos filtros sejam considerados
+
+    // Carregar informações do restaurante e categorias
+    useEffect(() => {
+        dispatch(getRestaurantById({ restaurantId, jwt }));
+        dispatch(getRestaurantsCategory({ jwt, restaurantId }));
+    }, [restaurantId, jwt, dispatch]); // O efeito precisa ser executado uma vez quando o componente for montado
+
+    // Função para lidar com a seleção de categoria
+    const handleFilterCategory = (e) => {
+        const value = e.target.value;
+        // Se o valor clicado for "all", envia uma string vazia; caso contrário, envia o valor normal
+        setSelectedCategory(value);
     };
 
-    const menu=[1,1,1,1,1]
+
+
+
+
+    const handleFilterFoodType = (e) => {
+        const value = e.target.value;
+        setFoodType(value); // Atualizar o tipo de comida
+    };
+
+
+
+
 
     return (
         <div className="px-5 lg:px-20">
@@ -36,39 +75,38 @@ const RestaurantDetails = () => {
                         <Grid item xs={12}>
                             <img
                                 className="w-full h-[400px] object-cover"
-                                src="https://images.pexels.com/photos/28059306/pexels-photo-28059306/free-photo-of-design-projeto-visual-interior.jpeg?auto=compress&cs=tinysrgb&w=800"
+                                src={restaurant.restaurant?.image[0]}
                                 alt=""
                             />
                         </Grid>
                         <Grid item xs={12} lg={6}>
                             <img
                                 className="w-full h-[400px] object-cover"
-                                src="https://images.pexels.com/photos/27067944/pexels-photo-27067944/free-photo-of-homem-mao-barra-bar.jpeg?auto=compress&cs=tinysrgb&w=800"
+                                src={restaurant.restaurant?.image[1]}
                                 alt=""
                             />
                         </Grid>
                         <Grid item xs={12} lg={6}>
                             <img
                                 className="w-full h-[400px] object-cover"
-                                src="https://images.pexels.com/photos/29033155/pexels-photo-29033155/free-photo-of-configuracao-de-jantar-elegante-no-interior-do-restaurante-de-toquio.jpeg?auto=compress&cs=tinysrgb&w=800"
+                                src={restaurant.restaurant?.image[2]}
                                 alt=""
                             />
                         </Grid>
                     </Grid>
                 </div>
                 <div className="pt-3 pd-5">
-                    <h3 className="text-4xl font-semibold">Mochi Sushi Bar</h3>
+                    <h3 className="text-4xl font-semibold">{restaurant.restaurant?.name}</h3>
                     <p className="text-gray-500 mt-1">
-                        <span>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Illum optio sint ad natus necessitatibus autem magnam perferendis odio repellat! Ad incidunt magnam necessitatibus, unde nihil sequi doloribus fugit tempore quae.</span>
+                        {restaurant.restaurant?.description}
                     </p>
                     <div className="space-y-3 mt-3">
                         <p className="text-gray-500 flex item-center gap-3">
                             <LocationOnIcon />
-                            <span>ermesinte 4334</span>
+                            {restaurant.restaurant?.address.city}
                         </p>
                         <p className="text-gray-500 flex item-center gap-3">
-                            <TodayIcon />
-                            <span>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Corporis molestiae accusamus asperiores</span>
+                            <TodayIcon />{restaurant.restaurant?.opningHours}
                         </p>
                     </div>
                 </div>
@@ -82,30 +120,49 @@ const RestaurantDetails = () => {
                                 Food Type
                             </Typography>
                             <FormControl className="py-10 space-y-5" component={"fieldset"}>
-                                <RadioGroup onChange={handleFilter} name="food_type" value={foodType}>
-                                    {foodTypes.map((item) => (
-                                        <FormControlLabel key={item.value} value={item.value} control={<Radio />} label={item.label} />
+                                <RadioGroup onChange={handleFilterFoodType} name="food_type" //value={foodType}
+                                >
+                                    {foodTypes.map((item, index) => (
+                                        <FormControlLabel key={index} value={item.value} control={<Radio />} label={item.label} />
                                     ))}
                                 </RadioGroup>
                             </FormControl>
                         </div>
-                        <Divider/>
+                        <Divider />
                         <div>
                             <Typography variant="h5" sx={{ paddingBottom: "1rem" }}>
                                 Food Category
                             </Typography>
                             <FormControl className="py-10 space-y-5" component={"fieldset"}>
-                                <RadioGroup onChange={handleFilter} name="food_category" value={categoryFilter}>
-                                    {categories.map((item) => (
-                                        <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
+                                <RadioGroup
+                                    onChange={handleFilterCategory} // Função que manipula o clique
+                                    name="food_category"
+                                    value={selectedCategory} // Controle do valor selecionado
+                                >
+                                    <FormControlLabel
+                                        key="all"
+                                        value=""
+                                        control={<Radio />}
+                                        label="All"
+                                    />
+                                    {restaurant.categories.map((item) => (
+                                        <FormControlLabel
+                                            key={item.id}
+                                            value={item.name}
+                                            control={<Radio />}
+                                            label={item.name}
+                                        />
                                     ))}
                                 </RadioGroup>
                             </FormControl>
+
+
+
                         </div>
                     </div>
                 </div>
                 <div className="space-y-5 lg:w-[80%] lg:pl-10">
-                                {menu.map((item)=><MenuCard/>)}
+                    {menu.menuItems.map((item) => <MenuCard item={item} />)}
                 </div>
             </section>
         </div>
@@ -113,4 +170,5 @@ const RestaurantDetails = () => {
 };
 
 export default RestaurantDetails;
+
 

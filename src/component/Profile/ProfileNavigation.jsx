@@ -45,15 +45,18 @@ const ProfileNavigation = ({ open, handleClose }) => {
             open={open}
             anchor="left"
             sx={{ zIndex: -1 }}
+            
         >
-            <div className="w-[50vw] lg:w-[20vw] h-[100vh] flex flex-col justify-center text-xl gap-8 pt-16">
+            <div className="w-[50vw] lg:w-[20vw] h-[100vh]   flex flex-col justify-center text-xl gap-8 pt-16">
                 {menu.map((item, i) => (
-                    <div key={i}>
-                        <div onClick={()=>handleNavigate(item)} className="px-5 flex items-center space-x-5 cursor-pointer">
+                    <div key={i} >
+                        <div>
+                        <div onClick={()=>handleNavigate(item)} className="px-5 flex items-center space-x-5 cursor-pointer ">
                             {item.icon}
                             <span>{item.title}</span>
                         </div>
-                        {i !== menu.length - 1 && <Divider sx={{ my: 1 }} />}
+                        {i !== menu.length - 1 && <Divider sx={{ my: 1 }}/>}
+                        </div>
                     </div>
                 ))}
             </div>

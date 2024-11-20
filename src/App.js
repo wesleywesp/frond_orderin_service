@@ -14,6 +14,9 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from './State/Authentication/Action';
 import { store } from './State/Store';
+import { findCart } from './State/Card/Action';
+import { getAllRestaurantsAction } from './State/Restaurant/Action';
+import { Routers } from './Routers/Routers';
 
 
 function App() {
@@ -21,12 +24,18 @@ function App() {
   const jwt = localStorage.getItem("jwt");
   const { auth } = useSelector(store => store)
   useEffect(() => {
-    dispatch(getUser(auth.jwt || jwt))
+    dispatch(getUser(auth.jwt || jwt));
+
+    dispatch(findCart(jwt))
+
   }, [auth.jwt])
+
+
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <CustomerRouter />
+      <Routers/>
     </ThemeProvider>
   );
 }

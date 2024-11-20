@@ -73,22 +73,29 @@ export const getUser = (jwt) => async (dispatch) => {
 
 
 
-export const addFavorite = (jwt, restaurantId) => async (dispatch) => {
+export const addFavorite = (restaurantId, jwt) => async (dispatch) => {
     dispatch({ type: ADD_TO_FAVORITE_REQUEST });
+    console.log("restaurantId1111", restaurantId);
+    
     try {
-        const { data } = await api.put(`/api/restaurants/${restaurantId}/add-favorite`, {}, {
+        // Verifique se restaurantId é numérico ou string antes de passá-lo
+        const { data } = await api.put(`/api/restaurants/${restaurantId}/add-favorites`, {}, {
             headers: {
                 Authorization: `Bearer ${jwt}`
             }
         });
+
+        // Certifique-se de que data é o que você espera (objeto do restaurante ou apenas o id)
         dispatch({ type: ADD_TO_FAVORITE_SUCCESS, payload: data });
         console.log("Add To Favorites", data);
+
     } catch (error) {
         dispatch({ type: ADD_TO_FAVORITE_FAILURE, payload: error.toString() });
-        console.log("error,", error);
-
+        console.log("Error adding to favorites", error);
     }
 };
+
+
 
 export const logout = () => (dispatch) => {
     dispatch({ type: LOGOUT });

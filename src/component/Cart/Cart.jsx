@@ -1,13 +1,12 @@
 import { Divider, Card, Button, Modal, Box, Grid, TextField } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CartItem from "./CarItem";
-import { AddresCart } from "./AddresCart";
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import { Formik, Field, ErrorMessage, Form } from 'formik';
-//import * as Yup from 'yup';
-
-
-const items = [1, 1, 1]
+import { useDispatch, useSelector } from 'react-redux';
+import { createOrder } from "../../State/Order/Action";
+import { getUser } from "../../State/Authentication/Action";
+import AddresCart from "./AddresCart";
 
 export const style = {
     position: 'absolute',
@@ -25,58 +24,127 @@ const initialValues = {
     streetAddress: "",
     stateAddress: "",
     codepostAddress: "",
-    cityAddress: ""
+    cityAddress: "",
+    number: ""
 };
 
 const Cart = () => {
-    const creteOrderUsingSelectedAddress = () => {};
-    const handleOpenAddressModel = () => setOpen(true);
+    const { cart, auth } = useSelector(store => store);
+    const dispatch = useDispatch();
+
+    const [selectedAddress, setSelectedAddress] = useState(null); // Estado para armazenar o endereço selecionado
+
     const handleSubmit = (value) => {
-        console.log("value", value);
+        const data = {
+            jwt: localStorage.getItem("jwt"),
+            order: {
+                restaurantId: cart.cartItems[0].food?.restaurant?.id,
+                deliveryAddress: selectedAddress
+                    ? { // Se um endereço já foi selecionado
+                        fullName: auth.user?.fullname,
+                        street: selectedAddress.street,
+                        state: selectedAddress.state,
+                        zipCode: selectedAddress.zipCode,
+                        city: selectedAddress.city,
+                        number: selectedAddress.number,
+                        country: selectedAddress.country,
+                    }
+                    : { // Se o formulário foi usado para fornecer um novo endereço
+                        fullName: auth.user?.fullname,
+                        street: value.streetAddress,
+                        state: value.stateAddress,
+                        zipCode: value.codepostAddress,
+                        city: value.cityAddress,
+                        number: value.number,
+                        country: "Portugal",
+                    },
+            }
+        };
+
+        dispatch(createOrder(data));
     };
+
+
+    const jwt = localStorage.getItem("jwt");
+    useEffect(() => {
+        dispatch(getUser(auth.jwt || jwt));
+    }, [auth.jwt]);
 
     const [open, setOpen] = React.useState(false);
     const handleClose = () => setOpen(false);
+    const handleOpenAddressModel = () => setOpen(true);
+
+    const handleSelectAddress = (address) => {
+        // Verifica se o endereço clicado já está selecionado
+        if (selectedAddress === address) {
+            setSelectedAddress(null); // Deseleciona o endereço
+        } else {
+            setSelectedAddress(address); // Marca o novo endereço
+        }
+    };
+
 
     return (
         <div>
             <main className="lg:flex justify-between">
                 <section className="lg:w-[30%] space-y-6 lg:min-h-screen pt-10">
-                    {items.map((item) => (
-                        <CartItem />
-                    ))}
+                    {cart.cartItems && cart.cartItems.length > 0 ? (
+                        <>
+                            {cart.cartItems.map((item) => (
+                                <CartItem key={item.id} item={item} />
+                            ))}
+                            <Divider />
+                        </>
+                    ) : (
+                        <p>No items in the cart</p>
+                    )}
                     <Divider />
                     <div className="billDetails px-5 text-sm">
-                        <p className="font-extralight py-5">Bill Detaisl</p>
+                        <p className="font-extralight py-5">Bill Details</p>
                         <div className="space-y-3">
                             <div className="flex justify-between text-gray-400">
-                                <p>item Total</p>
-                                <p>€55,99</p>
+                                <p>Item Total</p>
+                                <p>€{
+                                    cart.cartItems
+                                        ? cart.cartItems.reduce((acc, item) => acc + item.totalprice, 0)
+                                        : 0
+                                }</p>
                             </div>
 
                             <div className="flex justify-between text-gray-400">
-                                <p>Deliver Free</p>
+                                <p>Delivery Fee</p>
                                 <p>€2</p>
                             </div>
                             <div className="flex justify-between text-gray-400">
-                                <p>impost</p>
-                                <p>€2,4</p>
+                                <p>Tax</p>
+                                <p>€2</p>
                             </div>
                             <Divider />
                         </div>
                         <div className="flex justify-between text-gray-400">
-                            <p>Total to pay</p>
-                            <p>€60,39</p>
+                            <p>Total to Pay</p>
+                            <p>€{
+                                (cart.cartItems
+                                    ? cart.cartItems.reduce((acc, item) => acc + item.totalprice, 0)
+                                    : 0
+                                ) + 2 + 2
+                            }</p>
                         </div>
                     </div>
                 </section>
                 <Divider orientation="vertical" flexItem />
                 <section className="lg:w-[70%] flex justify-center px-5 pd-10 lg:pb-0">
                     <div>
-                        <h1 className="text-center font-semibold text-2xl py-10">chosse Delivery Address</h1>
+                        <h1 className="text-center font-semibold text-2xl py-10">Choose Delivery Address</h1>
                         <div className="flex gap-5 flex-wrap justify-center">
-                            {[1, 1, 1].map((item) => (
-                                <AddresCart item={item} showButton={true} handleSelectAddress={creteOrderUsingSelectedAddress} />
+                            {auth.user?.addresses.map((item) => (
+                                <AddresCart
+                                    key={item.id}
+                                    item={item}
+                                    showButton={true}
+                                    handleSelectAddress={() => handleSelectAddress(item)} // Chama a função de seleção/deseleção
+                                    isSelected={selectedAddress === item} // Passa o estado de seleção para destacar o endereço
+                                />
                             ))}
                             <Card className="flex gap-5 w-64 p-5">
                                 <AddLocationAltIcon />
@@ -88,12 +156,33 @@ const Cart = () => {
                                 </div>
                             </Card>
                         </div>
+
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            disabled={!selectedAddress} // Desabilitado se nenhum endereço for selecionado
+                            onClick={() => handleSubmit({})} // Passa valores vazios se nenhum novo endereço for fornecido
+                            style={{
+                                border: '1px solid gray',
+                                marginTop: '20px',
+                                marginLeft: 'auto',
+                                marginRight: 0,
+                                display: 'block',
+                            }}
+                        >
+                            Order
+                        </Button>
+
                     </div>
                 </section>
             </main>
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                 <Box sx={style}>
-                    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+                    <Formik
+                        initialValues={initialValues}
+                        onSubmit={(values) => handleSubmit(values)} // Passa os valores do formulário
+                    >
                         <Form>
                             <Grid container spacing={2}>
                                 <Grid item xs={12}>
@@ -103,9 +192,8 @@ const Cart = () => {
                                         label="Street Address"
                                         fullWidth
                                         variant="outlined"
-                                        error={Boolean(ErrorMessage("streetAddress"))}
-                                        helperText={<ErrorMessage name="streetAddress" component="span" className="text-red-600" />}
                                     />
+                                    <ErrorMessage name="streetAddress" component="span" className="text-red-600" />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Field
@@ -114,9 +202,18 @@ const Cart = () => {
                                         label="State Address"
                                         fullWidth
                                         variant="outlined"
-                                        error={Boolean(ErrorMessage("stateAddress"))}
-                                        helperText={<ErrorMessage name="stateAddress" component="span" className="text-red-600" />}
                                     />
+                                    <ErrorMessage name="stateAddress" component="span" className="text-red-600" />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Field
+                                        as={TextField}
+                                        name="number"
+                                        label="number"
+                                        fullWidth
+                                        variant="outlined"
+                                    />
+                                    <ErrorMessage name="number" component="span" className="text-red-600" />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Field
@@ -125,24 +222,22 @@ const Cart = () => {
                                         label="City Address"
                                         fullWidth
                                         variant="outlined"
-                                        error={Boolean(ErrorMessage("cityAddress"))}
-                                        helperText={<ErrorMessage name="cityAddress" component="span" className="text-red-600" />}
                                     />
+                                    <ErrorMessage name="cityAddress" component="span" className="text-red-600" />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Field
                                         as={TextField}
                                         name="codepostAddress"
-                                        label="Code Postal"
+                                        label="Postal Code"
                                         fullWidth
                                         variant="outlined"
-                                        error={Boolean(ErrorMessage("codepostAddress"))}
-                                        helperText={<ErrorMessage name="codepostAddress" component="span" className="text-red-600" />}
                                     />
+                                    <ErrorMessage name="codepostAddress" component="span" className="text-red-600" />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Button fullWidth variant="contained" type="submit" color="primary">
-                                        Delivery Here
+                                        Deliver Here
                                     </Button>
                                 </Grid>
                             </Grid>

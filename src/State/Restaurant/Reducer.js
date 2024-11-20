@@ -1,16 +1,19 @@
-import * as actionTypes from "./ActionType"
+import * as actionTypes from "./ActionType";
+
 const initialState = {
-    restaurants:[],
+    restaurants: [],
     usersRestaurant: null,
     restaurant: null,
     loading: false,
     error: null,
-    events:[],
-    restaurantsEvents:[],
-    categories:[] 
-}
+    events: [],
+    restaurantsEvents: [],
+    categories: []
+};
+
 export const restaurantReducer = (state = initialState, action) => {
-    switch(action.type){
+    switch (action.type) {
+        // Request Cases
         case actionTypes.CREATE_RESTAURANT_REQUEST:
         case actionTypes.GET_ALL_RESTAURANTS_REQUEST:
         case actionTypes.DELETE_RESTAURANT_REQUEST:
@@ -18,93 +21,95 @@ export const restaurantReducer = (state = initialState, action) => {
         case actionTypes.GET_RESTAURANT_BY_ID_REQUEST:
         case actionTypes.CREATE_CATEGORY_REQUEST:
         case actionTypes.GET_RESTAURANTS_CATEGORY_REQUEST:
-            return{
+            return {
                 ...state,
-                loading:true,
-                error:null,
+                loading: true,
+                error: null,
             };
+
+        // Success Cases
         case actionTypes.CREATE_RESTAURANT_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                usersRestaurant:action.payload
+                loading: false,
+                usersRestaurant: action.payload,
             };
         case actionTypes.GET_ALL_RESTAURANTS_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                restaurants:action.payload,
-
+                loading: false,
+                restaurants: action.payload,
             };
         case actionTypes.GET_RESTAURANT_BY_ID_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
+                loading: false,
                 restaurant: action.payload,
             };
         case actionTypes.GET_RESTAURANT_BY_USER_ID_SUCCESS:
         case actionTypes.UPDATE_RESTAURANT_STATUS_SUCCESS:
         case actionTypes.UPDATE_RESTAURANT_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                usersRestaurant:action.payload,
-            }
+                loading: false,
+                usersRestaurant: action.payload,
+            };
         case actionTypes.DELETE_RESTAURANT_SUCCESS:
-            return{
+            return {
                 ...state,
-                error:null,
-                loading:null,
+                error: null,
+                loading: false, // Corrigido de `null` para `false`
                 restaurants: state.restaurants.filter(
-                    (item)=> item.id !== action.payload
+                    (item) => item.id !== action.payload
                 ),
-                usersRestaurant:state.usersRestaurant.filter(
-                    (item)=> item.id!==action.payload
-                ),
+                usersRestaurant: state.usersRestaurant
+                    ? state.usersRestaurant.filter((item) => item.id !== action.payload)
+                    : null, // Adicionada verificação para evitar erro com valor null
             };
         case actionTypes.CREATE_EVENTS_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                restaurantsEvents:[...state.restaurantsEvents, action.payload],
-                events:[...state.events, action.payload],
-            }
+                loading: false,
+                restaurantsEvents: [...state.restaurantsEvents, action.payload],
+                events: [...state.events, action.payload],
+            };
         case actionTypes.GET_ALL_EVENTS_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                events:action.payload,
-            }
+                loading: false,
+                events: action.payload,
+            };
         case actionTypes.GET_RESTAURANTS_EVENTS_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                restaurantsEvents:action.payload,
+                loading: false,
+                restaurantsEvents: action.payload,
             };
         case actionTypes.DELETE_EVENTS_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
+                loading: false,
                 events: state.events.filter(
-                    (item)=> item.id !==action.payload
+                    (item) => item.id !== action.payload
                 ),
-                restaurantsEvents:state.restaurantsEvents.filter(
-                    (item)=>item.id !== action.payload
+                restaurantsEvents: state.restaurantsEvents.filter(
+                    (item) => item.id !== action.payload
                 ),
             };
         case actionTypes.CREATE_CATEGORY_SUCCESS:
-            return{
+            return {
                 ...state,
-                loading:false,
-                categories:[...state.categories, action.payload]
+                loading: false,
+                categories: [...state.categories, action.payload],
             };
-        case actionTypes.GET_RESTAURANTS_CATEGORY_REQUEST:
-            return{
+        case actionTypes.GET_RESTAURANTS_CATEGORY_SUCCESS: // Corrigido o nome do caso duplicado
+            return {
                 ...state,
-                loading:false,
-                categories:action.payload,
+                loading: false,
+                categories: action.payload,
+            };
 
-            };
+        // Failure Cases
         case actionTypes.CREATE_RESTAURANT_FAILURE:
         case actionTypes.GET_ALL_RESTAURANTS_FAILURE:
         case actionTypes.DELETE_RESTAURANT_FAILURE:
@@ -113,12 +118,16 @@ export const restaurantReducer = (state = initialState, action) => {
         case actionTypes.CREATE_EVENTS_FAILURE:
         case actionTypes.CREATE_CATEGORY_FAILURE:
         case actionTypes.GET_RESTAURANTS_CATEGORY_FAILURE:
-            return{
+            return {
                 ...state,
-                loading:false,
-                error:action.payload
-            }
+                loading: false,
+                error: action.payload,
+            };
+
+        // Default Case
         default:
             return state;
     }
 };
+
+export default restaurantReducer;

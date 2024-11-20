@@ -1,11 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './Home.css';
 import MultiItemCarousel from "./MultiItemCarousel";
 import RestaurantCard from "../Restaurant/RestaurantCard";
 import Auth from "../Auth/Auth"
+import { useDispatch, useSelector } from "react-redux";
+import { getAllRestaurantsAction } from "../../State/Restaurant/Action";
+import { findCart } from "../../State/Card/Action";
 
-const restaurant=[1,1,1,1,1,1,1]
  const Home = () => {
+    const dispatch=useDispatch()
+    const jwt=localStorage.getItem('jwt')
+    const{restaurant}=useSelector(store=>store)
+    console.log("restaurante",restaurant)
+    useEffect(()=>{
+        dispatch(findCart(jwt))
+            dispatch(getAllRestaurantsAction(jwt))
+  
+        
+    },[]);
+
+    
+
     return (
         <div className="pb-10">
         <section className="banner -z-50 relative flex flex-col justify-center
@@ -25,7 +40,7 @@ const restaurant=[1,1,1,1,1,1,1]
                 <h1 className="text-2xl font-semibold text-gray-400 pb-8">Order From Our Handpicked Favarites </h1>
                 <div className="flex flex-wrap item-center justify-around gap-5">
                     {
-                        restaurant.map((item)=><RestaurantCard/>)
+                        restaurant.restaurants.map((item)=><RestaurantCard item={item}/>)
 
                     }
                 </div>

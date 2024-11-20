@@ -10,7 +10,7 @@ import './Navbar.css';
 import { useSelector } from 'react-redux';
 
 export const Navbar = () => {
-    const{auth}=useSelector(store=>store);
+    const{auth,cart}=useSelector(store=>store);
     const navigator=useNavigate();
 
 
@@ -42,8 +42,8 @@ export const Navbar = () => {
                 )}
                 </div>
 
-               <div>                <IconButton>
-                    <Badge color="primary" badgeContent={4}>
+               <div>                <IconButton onClick={()=>navigator("/cart")}>
+                    <Badge color="primary" badgeContent={cart.cartItems.length}>
                         <ShoppingCartIcon sx={{ fontSize: "1.5rem" }} />
                     </Badge>
                 </IconButton>
