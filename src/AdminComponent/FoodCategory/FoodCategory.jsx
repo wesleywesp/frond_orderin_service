@@ -1,6 +1,9 @@
 import React from "react";
+import FoodCategoryTable from "./FoodCategoryTable";
 export const FoodCategory =()=> {
     return (
-        <div>food category</div>
+        <div className="px-2">
+            <FoodCategoryTable/>
+        </div>
     )
 }

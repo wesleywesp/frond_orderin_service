@@ -1,6 +1,9 @@
 import React from "react";
+import MenuTable from "./MenuTable";
 export const Menu =()=> {
     return (
-        <div>munu</div>
+        <div className="px-2">
+            <MenuTable/>
+        </div>
     )
 }
